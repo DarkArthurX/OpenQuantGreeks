@@ -156,11 +156,20 @@ src/
 
 Each directory contains a detailed README explaining the specific Greeks calculated there.
 
+## Branches
+
+I maintain a few branches, if you have an idea, try to follow this scheme.
+
+- Main - this will be the portable stable branch, "generically" written.
+- Vectorized - Main + Vector Extensions
+- Vectorized_* - The vectorized extensions + other optimizations.
+- 
 ## Contributing
 
 1. Ensure your changes pass all existing tests
 2. Add tests for new functionality
 3. Update relevant README files
 4. Follow the existing code style and structure
+
 
 The library is designed to be mathematically rigorous while remaining accessible to practitioners across different trading styles and timeframes.
